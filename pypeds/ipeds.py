@@ -8,8 +8,8 @@ import re
 import time
 import datetime
 from dfply import *
-from pypeds import datasets
-
+# from pypeds import datasets
+import datasets
 # ================================= core features
 
 # zip file factory - returns a pandas dataframe
@@ -241,8 +241,6 @@ class HD(object):
         init_df = pd.DataFrame({'pypeds_init': [True]})
         for year in self.years:
             # assert that year is a int and length 1
-            assert isinstance(year, int), "year is not an integer"
-            assert year >= 2002 and year <= 2019, "year must be >=2002 and < 2019"
             # build the SURVEY id
             SURVEY = 'HD' + str(year)
             # build the url
