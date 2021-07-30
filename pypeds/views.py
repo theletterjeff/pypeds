@@ -1,10 +1,8 @@
 # layer above ETL framework - views are tasks to build specific datasets
 import pandas as pd
 from dfply import *
-# from pypeds import ipeds
-# from pypeds import datasets
-import ipeds
-import datasets
+from pypeds import ipeds
+from pypeds import datasets
 
 
 # ================================================== migration dataset
