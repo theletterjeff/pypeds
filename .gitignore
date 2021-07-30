@@ -13,3 +13,5 @@ pypeds.Rproj
 .idea
 test-notebooks/
 env
+notes.org
+pypeds/test.py
