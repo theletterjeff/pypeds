@@ -13,19 +13,22 @@ from pypeds import datasets
 # ================================= core features
 
 # zip file factory - returns a pandas dataframe
+
+
 def zip_parser(url=None, survey=None):
     # setup the tmp path and file name
     # thanks to https://stackoverflow.com/questions/55718917/download-zip-file-locally-to-tempfile-extract-files-to-tempfile-and-list-the-f/55719124#55719124
     # path = "/tmp/pypeds/" + str(int(time.time())) + "/"  # hacky way to make unique path to extract time
     _today = datetime.datetime.today().strftime('%Y%m%d')
     survey_lower = survey.lower()
-    path = "/tmp/" + str(_today) + str(survey_lower) + "/"  # hacky way to make unique path to extract date and survey
+    # hacky way to make unique path to extract date and survey
+    path = "/tmp/" + str(_today) + str(survey_lower) + "/"
     file = survey + ".zip"
-    
+
     # naive way to do cacheing - if the path for today exists, dont do anything, if it doesnt, get the data
     if not os.path.exists(path + file):
         # get the data
-        os.mkdir(path)
+        os.makedirs(path)
         try:
             results = requests.get(url)
         except:
@@ -41,7 +44,8 @@ def zip_parser(url=None, survey=None):
     # files = [x.lower() for x in files]  ## removed for regex search below
     # isolate the file name
     if len(files) > 1:
-        raw_file = [s for s in files if re.search('rv|RV', s)] # use regex to search -- 2006 migration
+        # use regex to search -- 2006 migration
+        raw_file = [s for s in files if re.search('rv|RV', s)]
         raw_file = str(raw_file[0])  # just in case, take first
     else:
         raw_file = str(files[0])
@@ -54,12 +58,12 @@ def read_survey(path):
         path = path[0]
     # assumes a path, presumably from zip_parser
     try:
-        ## encoding option needed for h2017, at least, wasnt needed for IC2013
+        # encoding option needed for h2017, at least, wasnt needed for IC2013
         survey_file = pd.read_csv(path, encoding='ISO-8859-1')
     except:
         # need to pass in a list to avoid
         # ValueError: If using all scalar values, you must pass an index
-        survey_file = pd.DataFrame( [{'path': path}] )
+        survey_file = pd.DataFrame([{'path': path}])
     # remove the file
     os.remove(path)
     # column names to lower - helps later and assumes a survey varname is historically unique
@@ -143,27 +147,30 @@ def get_icay(year):
     # return the bits as a dictionary for use later
     return ({'url': URL, 'survey': SURVEY})
 
+
 def get_om(year):
     # assert that year is a int and length 1
     assert isinstance(year, int), "year is not an integer"
     assert year >= 2015 and year <= 2018, "year must be >=2015 and <= 2018"
     # build the SURVEY id
-    SURVEY = 'OM' + str(year) 
+    SURVEY = 'OM' + str(year)
     # build the url
     URL = "https://nces.ed.gov/ipeds/datacenter/data/{}.zip".format(SURVEY)
     # return the bits as a dictionary for use later
     return ({'url': URL, 'survey': SURVEY})
+
 
 def get_efd(year):
     # assert that year is a int and length 1
     assert isinstance(year, int), "year is not an integer"
     assert year >= 2002 and year <= 2018, "year must be >=2002 and <= 2018"
     # build the SURVEY id
-    SURVEY = 'EF' + str(year)  + "D"
+    SURVEY = 'EF' + str(year) + "D"
     # build the url
     URL = "https://nces.ed.gov/ipeds/datacenter/data/{}.zip".format(SURVEY)
     # return the bits as a dictionary for use later
     return ({'url': URL, 'survey': SURVEY})
+
 
 def get_ff1(year):
     # assert that year is a int and length 1
@@ -171,11 +178,12 @@ def get_ff1(year):
     assert year >= 2002 and year <= 2018, "year must be >=2002 and <= 2018"
     # build the SURVEY id
     ff1_year = str(year - 1)[2:] + str(year)[2:]
-    SURVEY = 'F' + str(ff1_year)  + "_F1A"
+    SURVEY = 'F' + str(ff1_year) + "_F1A"
     # build the url
     URL = "https://nces.ed.gov/ipeds/datacenter/data/{}.zip".format(SURVEY)
     # return the bits as a dictionary for use later
     return ({'url': URL, 'survey': SURVEY})
+
 
 def get_ff2(year):
     # assert that year is a int and length 1
@@ -183,18 +191,19 @@ def get_ff2(year):
     assert year >= 2002 and year <= 2018, "year must be >=2002 and <= 2018"
     # build the SURVEY id
     ff2_year = str(year - 1)[2:] + str(year)[2:]
-    SURVEY = 'F' + str(ff2_year)  + "_F2"
+    SURVEY = 'F' + str(ff2_year) + "_F2"
     # build the url
     URL = "https://nces.ed.gov/ipeds/datacenter/data/{}.zip".format(SURVEY)
     # return the bits as a dictionary for use later
     return ({'url': URL, 'survey': SURVEY})
+
 
 def get_ca(year):
     # assert that year is a int and length 1
     assert isinstance(year, int), "year is not an integer"
     assert year >= 2002 and year <= 2019, "year must be >=2002 and <= 2019"
     # build the SURVEY id
-    SURVEY = 'C' + str(year)  + "_A"
+    SURVEY = 'C' + str(year) + "_A"
     # build the url
     URL = "https://nces.ed.gov/ipeds/datacenter/data/{}.zip".format(SURVEY)
     # return the bits as a dictionary for use later
@@ -237,11 +246,13 @@ class HD(object):
             # build the SURVEY id
             SURVEY = 'HD' + str(year)
             # build the url
-            URL = "https://nces.ed.gov/ipeds/datacenter/data/{}.zip".format(SURVEY)
+            URL = "https://nces.ed.gov/ipeds/datacenter/data/{}.zip".format(
+                SURVEY)
             # return the bits as a dictionary for use later
             year_info = {'url': URL, 'survey': SURVEY}
             # year_info = get_efc(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
@@ -252,7 +263,7 @@ class HD(object):
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -265,11 +276,11 @@ class HD(object):
 
         return (self.df)
 
-    def transform(self, 
-                  deg4yr=None, 
-                  service=None, 
-                  lower_us=None, 
-                  regions = None, 
+    def transform(self,
+                  deg4yr=None,
+                  service=None,
+                  lower_us=None,
+                  regions=None,
                   cols=None):
         """
         The transformation methods for the dataset collected.  
@@ -288,7 +299,8 @@ class HD(object):
         # degree granting non profit private 4yr and public 4 yr
         if deg4yr:
             tmp = tmpdf
-            tmp_f = tmp.loc[(tmp.sector.isin([1, 2])) & (tmp.pset4flg == 1) & (tmp.deggrant == 1), ]
+            tmp_f = tmp.loc[(tmp.sector.isin([1, 2])) & (
+                tmp.pset4flg == 1) & (tmp.deggrant == 1), ]
             tmpdf = tmp_f
 
         # remove service schools
@@ -304,11 +316,11 @@ class HD(object):
             tmp_f = tmp.loc[tmp.fips != 2, ]
             tmp_f = tmp.loc[tmp.fips != 12, ]
             tmpdf = tmp_f
-        
+
         # add the regions info
         if regions:
             r = datasets.region_xwalk()
-            r = r >> select(['fips','name','ipeds_region'])
+            r = r >> select(['fips', 'name', 'ipeds_region'])
             r = r.rename(columns={"name": "state_name"})
             tmp = tmpdf
             tmp_f = pd.merge(left=tmp, right=r, on="fips", how="left")
@@ -359,7 +371,8 @@ class IC(object):
         for year in self.years:
             # the original dataset
             year_info = get_ic(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
@@ -370,7 +383,8 @@ class IC(object):
             # this is in addition to above
             if year >= 2014:
                 year_info = get_adm(year)
-                year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+                year_fpath = zip_parser(
+                    url=year_info['url'], survey=year_info['survey'])
                 tmp_df = read_survey(year_fpath)
                 tmp_df.columns = tmp_df.columns.str.lower()
                 tmp_df['survey_year'] = int(year)
@@ -380,13 +394,13 @@ class IC(object):
         # finish up
         # ignore pandas SettingWithCopyWarning,
         pd.options.mode.chained_assignment = None
-        ic_df_final = ic_df.loc[ic_df.pypeds_init != True,]
+        ic_df_final = ic_df.loc[ic_df.pypeds_init != True, ]
         ic_df_final.drop(columns=['pypeds_init'], inplace=True)
-        adm_df_final = adm_df.loc[adm_df.pypeds_init != True,]
+        adm_df_final = adm_df.loc[adm_df.pypeds_init != True, ]
         adm_df_final.drop(columns=['pypeds_init'], inplace=True)
-        # df = pd.merge(ic_df_final, adm_df_final, 
-        #               how="left", 
-        #               on=['unitid', 'survey_year'], 
+        # df = pd.merge(ic_df_final, adm_df_final,
+        #               how="left",
+        #               on=['unitid', 'survey_year'],
         #               suffixes=('_ic', '_adm'))
         df = pd.merge(ic_df_final, adm_df_final,
                       how="left",
@@ -419,13 +433,13 @@ class IC(object):
             tmp = tmpdf
             tmp['admit_rate'] = tmp['admssn'] / tmp['applcn']
             tmpdf = tmp
-        
+
         # calc yield rate
         if yield_rate:
             tmp = tmpdf
             tmp['yield_rate'] = tmp['enrlt'] / tmp['admssn']
             tmpdf = tmp
-        
+
         # keep those with adm survey data not missing
         if app_data:
             tmp = tmpdf
@@ -439,10 +453,9 @@ class IC(object):
                 tmp = tmpdf
                 tmp_f = tmp >> select(cols)
                 tmpdf = tmp_f
-        
+
         # return the data
         self.df = tmpdf
-
 
 
 class SFA(object):
@@ -461,7 +474,7 @@ class SFA(object):
         self.years = years
         self.df = pd.DataFrame()
 
-    def extract(self, status = None):
+    def extract(self, status=None):
         """
         Method to pull one or more SFA surveys based on the configured object
 
@@ -475,7 +488,8 @@ class SFA(object):
             if status:
                 print("Starting " + str(year))
             year_info = get_sfa(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
@@ -486,7 +500,7 @@ class SFA(object):
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -507,7 +521,7 @@ class SFA(object):
         Parameters:
             cols (list): A list of valid column names to keep, all others will be excluded
         """
-        
+
         tmpdf = self.df
 
         # select columns
@@ -522,9 +536,6 @@ class SFA(object):
 
         # return the data
         self.df = tmpdf
-
-
-
 
 
 class EFC(object):
@@ -551,7 +562,8 @@ class EFC(object):
         init_df = pd.DataFrame({'pypeds_init': [True]})
         for year in self.years:
             year_info = get_efc(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
@@ -561,7 +573,7 @@ class EFC(object):
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -585,7 +597,7 @@ class EFC(object):
         """
 
         tmpdf = self.df
-        
+
         # filter rows by efcstate
         if state is not None:
             assert isinstance(state, list), 'state must a list'
@@ -594,7 +606,6 @@ class EFC(object):
                 tmp_f = tmp.loc[tmp.efcstate.isin(state)]
                 tmpdf = tmp_f
 
-
         # filter rows by line
         if line is not None:
             assert isinstance(line, list), 'line must a list'
@@ -602,7 +613,6 @@ class EFC(object):
                 tmp = tmpdf
                 tmp_f = tmp.loc[tmp.line.isin(line)]
                 tmpdf = tmp_f
-        
 
         # select columns
         if cols is not None:
@@ -611,20 +621,21 @@ class EFC(object):
                 tmp = tmpdf
                 tmp_f = tmp >> select(cols)
                 tmpdf = tmp_f
-        
+
         # add the regions info
         if regions:
             r = datasets.region_xwalk()
-            r = r >> select(['ipeds_code','name','ipeds_region', 'postal code'])
-            r = r.rename(columns={"ipeds_code": "line", 
-                                  "ipeds_region":"res_region", 
-                                  "postal code":"res_zip",
-                                  "name":"res_name"})
+            r = r >> select(
+                ['ipeds_code', 'name', 'ipeds_region', 'postal code'])
+            r = r.rename(columns={"ipeds_code": "line",
+                                  "ipeds_region": "res_region",
+                                  "postal code": "res_zip",
+                                  "name": "res_name"})
             r['line'] = r['line'].astype('float64')
             tmp = tmpdf
             tmp_f = pd.merge(left=tmp, right=r, on="line", how="left")
             tmpdf = tmp_f
-        
+
         # return the data
         self.df = tmpdf
 
@@ -653,7 +664,8 @@ class ICAY(object):
         init_df = pd.DataFrame({'pypeds_init': [True]})
         for year in self.years:
             year_info = get_icay(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
@@ -663,7 +675,7 @@ class ICAY(object):
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -683,9 +695,9 @@ class ICAY(object):
         Parameters:
             cols (list): a list of the columsn to be kept, column names in quotes
         """
-        
+
         tmpdf = self.df
-        
+
         # filter the columns
         if cols is not None:
             assert isinstance(cols, list), 'cols must be a list'
@@ -693,10 +705,10 @@ class ICAY(object):
                 tmp = tmpdf
                 tmp_f = tmp >> select(cols)
                 tmpdf = tmp_f
-        
+
         # return the dataset
         self.df = tmpdf
-        
+
 
 class OM(object):
     """
@@ -722,7 +734,8 @@ class OM(object):
         init_df = pd.DataFrame({'pypeds_init': [True]})
         for year in self.years:
             year_info = get_om(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
@@ -732,7 +745,7 @@ class OM(object):
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -743,6 +756,7 @@ class OM(object):
         """
 
         return (self.df)
+
 
 class EFD(object):
     """
@@ -768,7 +782,8 @@ class EFD(object):
         init_df = pd.DataFrame({'pypeds_init': [True]})
         for year in self.years:
             year_info = get_efd(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
@@ -778,7 +793,7 @@ class EFD(object):
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -816,17 +831,18 @@ class FF1(object):
         for year in self.years:
             year = int(year)
             year_info = get_ff1(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
-            tmp_df['fall_year'] = int(year) -1
+            tmp_df['fall_year'] = int(year) - 1
             init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -846,9 +862,9 @@ class FF1(object):
         Parameters:
             cols (list): a list of the columsn to be kept, column names in quotes
         """
-        
+
         tmpdf = self.df
-        
+
         # filter the columns
         if cols is not None:
             assert isinstance(cols, list), 'cols must be a list'
@@ -856,7 +872,7 @@ class FF1(object):
                 tmp = tmpdf
                 tmp_f = tmp >> select(cols)
                 tmpdf = tmp_f
-        
+
         # return the dataset
         self.df = tmpdf
 
@@ -886,17 +902,18 @@ class FF2(object):
         for year in self.years:
             year = int(year)
             year_info = get_ff2(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
-            tmp_df['fall_year'] = int(year) -1
+            tmp_df['fall_year'] = int(year) - 1
             init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -916,9 +933,9 @@ class FF2(object):
         Parameters:
             cols (list): a list of the columsn to be kept, column names in quotes
         """
-        
+
         tmpdf = self.df
-        
+
         # filter the columns
         if cols is not None:
             assert isinstance(cols, list), 'cols must be a list'
@@ -926,7 +943,7 @@ class FF2(object):
                 tmp = tmpdf
                 tmp_f = tmp >> select(cols)
                 tmpdf = tmp_f
-        
+
         # return the dataset
         self.df = tmpdf
 
@@ -956,17 +973,18 @@ class C_A(object):
         for year in self.years:
             year = int(year)
             year_info = get_ca(year)
-            year_fpath = zip_parser(url=year_info['url'], survey=year_info['survey'])
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
             tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
-            tmp_df['fall_year'] = int(year) -1
+            tmp_df['fall_year'] = int(year) - 1
             init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
-        init_df = init_df.loc[init_df.pypeds_init != True,]
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
         self.df = self.df.append(init_df, ignore_index=True)
@@ -978,9 +996,9 @@ class C_A(object):
 
         return (self.df)
 
-    def transform(self, 
-                  cip_label=True, 
-                  award_level=True, 
+    def transform(self,
+                  cip_label=True,
+                  award_level=True,
                   first_major=True,
                   grand_total=False,
                   level_keep=None,
@@ -997,9 +1015,9 @@ class C_A(object):
             level_keep (list): a list of the award level codes to be kept. Note, this takes the numeric code, not the label.  For help, refer to datasets.award_levels().
             cols (list): a list of the columns to be kept, column names in quotes
         """
-        
+
         tmpdf = self.df
-        
+
         # add the CIP code labels
         if cip_label:
             # get the cip code crosswalk
@@ -1009,7 +1027,7 @@ class C_A(object):
             tmp = pd.merge(left=tmp, right=cips, on="cipcode", how="left")
             # set the update
             tmpdf = tmp
-        
+
         # add the award level labels
         if award_level:
             # get the award level labels
@@ -1026,7 +1044,7 @@ class C_A(object):
             tmp = tmp.loc[tmp.majornum == 1, ]
             # set the update
             tmpdf = tmp
-        
+
         # the award levels to keep
         if level_keep is not None:
             assert isinstance(level_keep, list), 'level_keep must be a list'
@@ -1035,7 +1053,7 @@ class C_A(object):
                 tmp = tmp.loc[tmp.awlevel.isin(level_keep), ]
                 # set the update
                 tmpdf = tmp
-            
+
         # filter the columns
         if cols is not None:
             assert isinstance(cols, list), 'cols must be a list'
@@ -1043,12 +1061,9 @@ class C_A(object):
                 tmp = tmpdf
                 tmp_f = tmp >> select(cols)
                 tmpdf = tmp_f
-        
+
         # return the dataset
         self.df = tmpdf
 
 
-## another class
-
-
-
+# another class
