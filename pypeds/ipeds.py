@@ -45,7 +45,7 @@ def zip_parser(url=None, survey=None):
     # isolate the file name
     if len(files) > 1:
         # use regex to search -- 2006 migration
-        raw_file = [s for s in files if re.search('rv|RV', s)]
+        raw_file = [s if re.search('rv|RV', s) else s for s in files]
         raw_file = str(raw_file[0])  # just in case, take first
     else:
         raw_file = str(files[0])
