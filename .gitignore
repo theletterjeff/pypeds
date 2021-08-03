@@ -13,5 +13,10 @@ pypeds.Rproj
 .idea
 test-notebooks/
 env
+<<<<<<< HEAD
 notes.org
 test.py
+=======
+pypeds/notes.org
+pypeds/test.py
+>>>>>>> eb23d828885cc99c0e3d9172e276d7e38d7315fe

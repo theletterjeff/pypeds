@@ -52,14 +52,22 @@ def zip_parser(url=None, survey=None):
     return (str(raw_file))
 
 
+<<<<<<< HEAD
 def read_survey(path, **kwargs):
+=======
+def read_survey(path, dtype=None):
+>>>>>>> eb23d828885cc99c0e3d9172e276d7e38d7315fe
     if isinstance(path, list):
         path = path[0]
     # assumes a path, presumably from zip_parser
     try:
         # encoding option needed for h2017, at least, wasnt needed for IC2013
         # dtype parameter is dict with columns and dtypes
+<<<<<<< HEAD
         survey_file = pd.read_csv(path, encoding='ISO-8859-1', **kwargs)
+=======
+        survey_file = pd.read_csv(path, dtype=dtype, encoding='ISO-8859-1')
+>>>>>>> eb23d828885cc99c0e3d9172e276d7e38d7315fe
     except:
         # need to pass in a list to avoid
         # ValueError: If using all scalar values, you must pass an index
