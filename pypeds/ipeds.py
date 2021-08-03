@@ -52,14 +52,14 @@ def zip_parser(url=None, survey=None):
     return (str(raw_file))
 
 
-def read_survey(path, **kwargs):
+def read_survey(path):
     if isinstance(path, list):
         path = path[0]
     # assumes a path, presumably from zip_parser
     try:
         # encoding option needed for h2017, at least, wasnt needed for IC2013
         # dtype parameter is dict with columns and dtypes
-        survey_file = pd.read_csv(path, encoding='ISO-8859-1', **kwargs)
+        survey_file = pd.read_csv(path, encoding='ISO-8859-1')
     except:
         # need to pass in a list to avoid
         # ValueError: If using all scalar values, you must pass an index
@@ -986,8 +986,7 @@ class C_A(object):
             year_info = get_ca(year)
             year_fpath = zip_parser(
                 url=year_info['url'], survey=year_info['survey'])
-            dtype_dict = {'CIPCODE': str}
-            tmp_df = read_survey(year_fpath, dtype=dtype_dict)
+            tmp_df = read_survey(year_fpath)
             tmp_df.columns = tmp_df.columns.str.lower()
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)

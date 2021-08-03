@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
 
+
 def comp_graph1():
     """
     Returns a dictionary of dataframes that flags "similar" schools and majors offered for graph-based analysis.
@@ -39,8 +40,6 @@ def comp_graph3():
     edges_url = "https://raw.githubusercontent.com/Btibert3/datasets/master/he-competitor-graphs/competition.csv"
     edges = pd.read_csv(edges_url)
     return(edges)
-
-
 
 
 def wiche():
@@ -109,9 +108,10 @@ def crosswalk():
     Curently, caching is not used but should be.
     """
 
-    url ="https://docs.google.com/spreadsheets/d/e/2PACX-1vQifjGzZDfaTW01tmr3mp_qQ7Om279Dr1sFuSLXEXhcaOjpN5kXwQs6Mpvl9D11nGiIMrQ-asmsLlsk/pub?gid=713012050&single=true&output=csv"
+    url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQifjGzZDfaTW01tmr3mp_qQ7Om279Dr1sFuSLXEXhcaOjpN5kXwQs6Mpvl9D11nGiIMrQ-asmsLlsk/pub?gid=713012050&single=true&output=csv"
     x = pd.read_csv(url)
     return(x)
+
 
 def closings():
     """
@@ -124,6 +124,7 @@ def closings():
     x = pd.read_csv(url)
     return(x)
 
+
 def region_xwalk():
     """
     Returns a dataframe that can be used to map states and regions
@@ -133,7 +134,8 @@ def region_xwalk():
     x = pd.read_csv(url)
     x.columns = x.columns.str.lower()
     return(x)
-    
+
+
 def cipcodes():
     """
     Returns a dataframe of 2010 CIP Codes
@@ -146,6 +148,7 @@ def cipcodes():
     x.columns = x.columns.str.lower()
     return(x)
 
+
 def award_levels():
     """
     Returns a dataframe of award levels for the Completions A Survey
@@ -157,11 +160,12 @@ def award_levels():
     x = pd.read_csv(url)
     x.columns = x.columns.str.lower()
     return(x)
-    
+
+
 def cohort_default():
     """
     Returns a dataframe of cohort default data.  
-    
+
     The U.S. Department of Education releases official cohort default rates once per year. The FY 2016 official cohort default rates were delivered to both domestic and foreign schools on September 23, 2019, electronically via the eCDR process. All schools must enroll in eCDR to receive cohort default rate notification. 
 
     Source: https://www2.ed.gov/offices/OSFAP/defaultmanagement/cdr.html
@@ -171,19 +175,16 @@ def cohort_default():
     # https://stackoverflow.com/questions/44629631/while-using-pandas-got-error-urlopen-error-ssl-certificate-verify-failed-cert
     import ssl
     ssl._create_default_https_context = ssl._create_unverified_context
-    
+
     # get the data
     url = "https://www2.ed.gov/offices/OSFAP/defaultmanagement/peps300.xlsx"
     x = pd.read_excel(url)
-    
+
     # fix the column names
     x.columns = x.columns.str.lower()
     cnames = x.columns
     cnames = cnames.str.replace("\\n| ", "_", regex=True)
     x.columns = cnames
-    
+
     # return the data
     return(x)
-
-
-
