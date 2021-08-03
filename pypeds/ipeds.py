@@ -52,14 +52,14 @@ def zip_parser(url=None, survey=None):
     return (str(raw_file))
 
 
-def read_survey(path, dtype=None):
+def read_survey(path, **kwargs):
     if isinstance(path, list):
         path = path[0]
     # assumes a path, presumably from zip_parser
     try:
         # encoding option needed for h2017, at least, wasnt needed for IC2013
         # dtype parameter is dict with columns and dtypes
-        survey_file = pd.read_csv(path, dtype=dtype, encoding='ISO-8859-1')
+        survey_file = pd.read_csv(path, encoding='ISO-8859-1', **kwargs)
     except:
         # need to pass in a list to avoid
         # ValueError: If using all scalar values, you must pass an index
@@ -210,7 +210,20 @@ def get_ca(year):
     return ({'url': URL, 'survey': SURVEY})
 
 
+def get_cdep(year):
+    # assert that year is an int and length 1
+    assert isinstance(year, int), "Year is not an integer"
+    assert year >= 2002 and year <= 2020, "Year must be >= 2002 and <= 2020"
+    # build the survey id
+    SURVEY = 'C' + str(year) + "DEP"
+    # build the url
+    URL = "https://nces.ed.gov/ipeds/datacenter/data/{}.zip".format(SURVEY)
+    # return the bits as a dictionary for use later
+    return ({'url': URL, 'survey': SURVEY})
+
+
 # ================================= build the classes
+
 
 class HD(object):
     """
@@ -951,7 +964,7 @@ class C_A(object):
     Awards/degrees conferred by program (6-digit CIP code), award level, race/ethnicity, and gender
     """
 
-    def __init__(self, years=[2018]):
+    def __init__(self, years=[2020]):
         """
         Public institutions - GASB
 
@@ -1065,4 +1078,118 @@ class C_A(object):
         self.df = tmpdf
 
 
-# another class
+class CDEP(object):
+    """
+    Number of programs offered and number of programs offered via distance education, by award level 
+    """
+
+    def __init__(self, years=[2020]):
+        """
+        Parameters:
+          years (list): List of ints for the survey year
+        """
+
+        self.years = years
+        self.df = pd.DataFrame()
+
+    def extract(self):
+        """
+        Method to pull one or more CDEP surveys based on the configured object
+        """
+
+        init_df = pd.DataFrame({'pypeds_init': [True]})
+        for year in self.years:
+            year = int(year)
+            year_info = get_cdep(year)
+            year_fpath = zip_parser(
+                url=year_info['url'], survey=year_info['survey'])
+            dtype_dict = {'CIPCODE': str}
+            tmp_df = read_survey(year_fpath, dtype=dtype_dict)
+            tmp_df.columns = tmp_df.columns.str.lower()
+            tmp_df.columns = tmp_df.columns.str.strip()
+            tmp_df['survey_year'] = int(year)
+            tmp_df['fall_year'] = int(year) - 1
+            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+        # finish up
+        # ignore pandas SettingWithCopyWarning, basically
+        pd.options.mode.chained_assignment = None
+        init_df = init_df.loc[init_df.pypeds_init != True, ]
+        init_df.drop(columns=['pypeds_init'], inplace=True)
+        # return(init_df)
+        self.df = self.df.append(init_df, ignore_index=True)
+
+    def load(self):
+        """
+        The load method returns a pandas dataframe that has been extracted, and optionally, transformed.
+        """
+
+        return (self.df)
+
+    def transform(self,
+                  cip_label=True,
+                  award_level=True,
+                  first_major=True,
+                  grand_total=False,
+                  level_keep=None,
+                  cols=None):
+        """
+        The transformation method of the data.  
+        Arguments activate the transformation, otherwise they are not performed.
+
+        Parameters:
+            cip_label (bool): Add the 2010 cip code labels.  Default is True.
+            award_level (bool): Add the labels for the award levels.  Default is True.
+            first_major (bool): If True (default), filter rows where majornum ==  1 for first major
+            grand_total (bool): Should the Grand Total cip code be included? Default is False.
+            level_keep (list): a list of the award level codes to be kept. Note, this takes the numeric code, not the label.  For help, refer to datasets.award_levels().
+            cols (list): a list of the columns to be kept, column names in quotes
+        """
+
+        tmpdf = self.df
+
+        # add the CIP code labels
+        if cip_label:
+            # get the cip code crosswalk
+            cips = datasets.cipcodes()
+            # add the cip codes
+            tmp = tmpdf
+            tmp = pd.merge(left=tmp, right=cips, on="cipcode", how="left")
+            # set the update
+            tmpdf = tmp
+
+        # add the award level labels
+        if award_level:
+            # get the award level labels
+            al = datasets.award_levels()
+            # add the labels onto the dataframe
+            tmp = tmpdf
+            tmp = pd.merge(left=tmp, right=al, on="awlevel", how="left")
+            # set the update
+            tmpdf = tmp
+
+        # keep only the first major
+        if first_major:
+            tmp = tmpdf
+            tmp = tmp.loc[tmp.majornum == 1, ]
+            # set the update
+            tmpdf = tmp
+
+        # the award levels to keep
+        if level_keep is not None:
+            assert isinstance(level_keep, list), 'level_keep must be a list'
+            if len(level_keep) > 0:
+                tmp = tmpdf
+                tmp = tmp.loc[tmp.awlevel.isin(level_keep), ]
+                # set the update
+                tmpdf = tmp
+
+        # filter the columns
+        if cols is not None:
+            assert isinstance(cols, list), 'cols must be a list'
+            if len(cols) > 0:
+                tmp = tmpdf
+                tmp_f = tmp >> select(cols)
+                tmpdf = tmp_f
+
+        # return the dataset
+        self.df = tmpdf
