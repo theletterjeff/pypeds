@@ -25,9 +25,10 @@ def zip_parser(url=None, survey=None):
     file = survey + ".zip"
 
     # naive way to do cacheing - if the path for today exists, dont do anything, if it doesnt, get the data
+    if not os.path.exists(path):
+        os.makedirs(path)
     if not os.path.exists(path + file):
         # get the data
-        os.makedirs(path)
         try:
             results = requests.get(url)
         except:
