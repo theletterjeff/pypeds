@@ -991,14 +991,15 @@ class C_A(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year) - 1
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df],
+                                ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], ignore_index=True)
 
     def load(self):
         """
