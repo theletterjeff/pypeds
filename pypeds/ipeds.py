@@ -269,7 +269,7 @@ class HD(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year)
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], ignore_index=True, sort=False)
             # print("finished hd for year {}".format(str(year)))
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
@@ -277,7 +277,7 @@ class HD(object):
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], ignore_index=True)
 
     # method to return the data
     def load(self):
