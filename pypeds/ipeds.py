@@ -389,7 +389,7 @@ class IC(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year)
-            ic_df = ic_df.append(tmp_df, ignore_index=True, sort=False)
+            ic_df = pd.concat([ic_df, tmp_df], axis=0, ignore_index=True, sort=False)
             # check the year to get the admission data for 2014 and later
             # this is in addition to above
             if year >= 2014:
@@ -400,7 +400,7 @@ class IC(object):
                 tmp_df.columns = tmp_df.columns.str.lower()
                 tmp_df['survey_year'] = int(year)
                 tmp_df['fall_year'] = int(year)
-                adm_df = adm_df.append(tmp_df, ignore_index=True, sort=False)
+                adm_df = pd.concat([adm_df, tmp_df], axis=0, ignore_index=True, sort=False)
 
         # finish up
         # ignore pandas SettingWithCopyWarning,
@@ -416,7 +416,7 @@ class IC(object):
         df = pd.merge(ic_df_final, adm_df_final,
                       how="left",
                       on=['unitid', 'survey_year', 'fall_year'])
-        self.df = self.df.append(df, ignore_index=True)
+        self.df = pd.concat([self.df, df], axis=0, ignore_index=True)
 
     def load(self):
         """
@@ -506,7 +506,7 @@ class SFA(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year) - 1
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], axis=0, ignore_index=True, sort=False)
             # print("finished hd for year {}".format(str(year)))
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
@@ -514,7 +514,7 @@ class SFA(object):
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], axis=0, ignore_index=True)
 
         # method to return the data
     def load(self):
@@ -580,14 +580,14 @@ class EFC(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year)
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], axis=0, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], axis=0, ignore_index=True)
 
     def load(self):
         """
@@ -682,14 +682,14 @@ class ICAY(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year)
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], axis=0, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], axis=0, ignore_index=True)
 
     def load(self):
         """
@@ -752,14 +752,14 @@ class OM(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year) - 8
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], axis=0, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], axis=0, ignore_index=True)
 
     def load(self):
         """
@@ -800,14 +800,14 @@ class EFD(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year)
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], axis=0, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], axis=0, ignore_index=True)
 
     def load(self):
         """
@@ -849,14 +849,14 @@ class FF1(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year) - 1
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], axis=0, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], axis=0, ignore_index=True)
 
     def load(self):
         """
@@ -920,14 +920,14 @@ class FF2(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year) - 1
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], axis=0, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], axis=0, ignore_index=True)
 
     def load(self):
         """
@@ -1108,14 +1108,14 @@ class CDEP(object):
             tmp_df.columns = tmp_df.columns.str.strip()
             tmp_df['survey_year'] = int(year)
             tmp_df['fall_year'] = int(year) - 1
-            init_df = init_df.append(tmp_df, ignore_index=True, sort=False)
+            init_df = pd.concat([init_df, tmp_df], axis=0, ignore_index=True, sort=False)
         # finish up
         # ignore pandas SettingWithCopyWarning, basically
         pd.options.mode.chained_assignment = None
         init_df = init_df.loc[init_df.pypeds_init != True, ]
         init_df.drop(columns=['pypeds_init'], inplace=True)
         # return(init_df)
-        self.df = self.df.append(init_df, ignore_index=True)
+        self.df = pd.concat([self.df, init_df], axis=0, ignore_index=True)
 
     def load(self):
         """
